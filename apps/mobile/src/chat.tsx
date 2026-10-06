@@ -889,6 +889,16 @@ export function ChatScreen({
               onKeyPress={
                 Platform.OS === "web"
                   ? (event) => {
+                      // IME composition (Chinese/Japanese/Korean): confirming a candidate
+                      // arrives as Enter with isComposing set (Chromium) or keyCode 229
+                      // (WebKit after compositionend). That press belongs to the IME,
+                      // not to sending. See CopilotKit/OpenBot app/src/lib/composing.ts.
+                      if (
+                        event.nativeEvent.isComposing ||
+                        event.nativeEvent.keyCode === 229
+                      ) {
+                        return;
+                      }
                       if (
                         event.nativeEvent.key === "Enter" &&
                         !("shiftKey" in event.nativeEvent && event.nativeEvent.shiftKey)
